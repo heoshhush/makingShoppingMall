@@ -1,78 +1,56 @@
-const category = document.querySelectorAll('.category');
-const items = document.querySelectorAll('.item');
-const tSelector = document.querySelector('#tSelector');
-const pSelector = document.querySelector('#pSelector');
-const sSelector = document.querySelector('#sSelector');
-const blueSelector = document.querySelector('#blueSelector');
-const pinkSelector = document.querySelector('#pinkSelector');
-const yellowSelector = document.querySelector('#yellowSelector');
+// load from data.json
+
+function loadItems(){
+    return fetch('data/data.json')
+    .then(response => response.json())
+    .then(json => json.items);
+}
 
 
+// items를 HTML string으로 바꾸어 화면에 표시합니다.
 
-tSelector.addEventListener('click',function(e){
-    e.stopPropagation();
-    items.forEach(function(elem){
-        elem.classList.remove('hide');
-        if(!elem.classList.contains('t')){
-            elem.classList.add('hide');
-        }
-    }
-)});
+function displayItems(items){
+    const container = document.querySelector('.items');
+    container.innerHTML = items.map(item => createHTMLString(item)).join('');
+}
+
+function createHTMLString(item) {
+    return `
+<li class="item">
+            <img src="${item.image}" alt="${item.type}" class="item_thumbnail"/>
+            <span class="item_description">${item.gender}, ${item.size}</span>
+    </li>
+`;
+}
+
+
+// 버튼을 통해 item들을 분류할 수 있도록 이벤트를 추가합니다.
+
+function setEventListener(items){
+    const logo = document.querySelector('.logo');
+    const buttons = document.querySelector('.buttons');
     
+    logo.addEventListener('click', () => displayItems(items));
+    buttons.addEventListener('click', (event) => onButtonClick(event,items));
+}
 
-pSelector.addEventListener('click',function(e){
-    e.stopPropagation();
-    items.forEach(function(elem){
-        elem.classList.remove('hide');
-        if(!elem.classList.contains('p')){
-            elem.classList.add('hide');
-        }
-    }
-)});
+
+function onButtonClick(event,items){
+    const dataset = event.target.dataset;
+    const key = dataset.key;
+    const value = dataset.value;
     
-
-
-sSelector.addEventListener('click',function(e){
-    e.stopPropagation();
-    items.forEach(function(elem){
-        elem.classList.remove('hide');
-        if(!elem.classList.contains('s')){
-            elem.classList.add('hide');
-        }
+    if(key == null || value == null){
+        return;
+    } else {
+        displayItems(items.filter(item => item[key] === value));
     }
-)});
-    
+}
 
-blueSelector.addEventListener('click',function(e){
-    e.stopPropagation();
-    items.forEach(function(elem){
-        elem.classList.remove('hide');
-        if(!elem.classList.contains('blue')){
-            elem.classList.add('hide');
-        }
-    }
-)});
-    
+// Run !
 
-pinkSelector.addEventListener('click',function(e){
-    e.stopPropagation();
-    items.forEach(function(elem){
-        elem.classList.remove('hide');
-        if(!elem.classList.contains('pink')){
-            elem.classList.add('hide');
-        }
-    }
-)});
-    
-
-
-yellowSelector.addEventListener('click',function(e){
-    e.stopPropagation();
-    items.forEach(function(elem){
-        elem.classList.remove('hide');
-        if(!elem.classList.contains('yellow')){
-            elem.classList.add('hide');
-        }
-    }
-)});
-    
+loadItems()
+.then(items => {
+    displayItems(items);
+    setEventListener(items);
+})
