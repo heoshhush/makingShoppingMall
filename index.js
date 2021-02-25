@@ -1,4 +1,4 @@
-// load from data.json
+// Load all items from data.json
 
 function loadItems(){
     return fetch('data/data.json')
@@ -6,51 +6,51 @@ function loadItems(){
     .then(json => json.items);
 }
 
+// display Items by constructinng new li 
 
-// items를 HTML string으로 바꾸어 화면에 표시합니다.
-
-function displayItems(items){
-    const container = document.querySelector('.items');
-    container.innerHTML = items.map(item => createHTMLString(item)).join('');
-}
-
-function createHTMLString(item) {
-    return `
-<li class="item">
-            <img src="${item.image}" alt="${item.type}" class="item_thumbnail"/>
-            <span class="item_description">${item.gender}, ${item.size}</span>
-    </li>
-`;
-}
-
-
-// 버튼을 통해 item들을 분류할 수 있도록 이벤트를 추가합니다.
-
-function setEventListener(items){
-    const logo = document.querySelector('.logo');
-    const buttons = document.querySelector('.buttons');
-    
-    logo.addEventListener('click', () => displayItems(items));
-    buttons.addEventListener('click', (event) => onButtonClick(event,items));
+function displayItems(item){
+    const img = document.createElement('img');
+    img.setAttribute('class','thumbnail');
+    img.setAttribute('src', item.image)
+    const span = document.createElement('span');
+    span.innerText = `${item.color}, ${item.size} size`;
+    const li = document.createElement('li');
+    li.setAttribute('class', 'item');
+    li.setAttribute('data-type', item.type);
+    li.setAttribute('data-color', item.color);
+    li.append(img);
+    li.append(span);
+    return li;
 }
 
 
-function onButtonClick(event,items){
+// flitering by Button
+
+function onClickButton(event,elements){
     const dataset = event.target.dataset;
     const key = dataset.key;
     const value = dataset.value;
     
-    if(key == null || value == null){
-        return;
-    } else {
-        displayItems(items.filter(item => item[key] === value));
-    }
+    elements.map(item => {
+        if(item.dataset[key] === value){
+            item.classList.remove('invisible');
+        } else {
+            item.classList.add('invisible');
+        }
+    })
+    
 }
 
-// Run !
+
+// run 'loadItems' and filtering
 
 loadItems()
 .then(items => {
-    displayItems(items);
-    setEventListener(items);
+    const elements = items.map(displayItems);
+    const container = document.querySelector('.items');
+    container.append(...elements);
+    const buttons = document.querySelector('.buttons');
+    buttons.addEventListener('click', event => onClickButton(event,elements))
+    const logo = document.querySelector('.logo')
+    logo.addEventListener('click', () => elements.map(item => item.classList.remove('invisible')))
 })
